@@ -1,0 +1,74 @@
+.container-fluid.full-height
+  .row.full-height
+    .col-sm-6.col-sm-offset-3.full-height
+      h3 New Location
+      = simple_form_for(@location, html: { class: 'form-horizontal full-height' }) do |f|
+        .row
+          .col-sm-3
+            = f.button :submit
+          .col-sm-3.col-sm-offset-6
+            a.btn.btn-default.pull-right#clear-polygon Clear polygon
+        .row.full-height
+          .col-sm-12.full-height
+            = f.input :name
+            = f.input :area, as: :string, input_html: {class: 'hidden'}
+            #map
+javascript:
+  $(document).one('turbolinks:load', function() {
+    var map = new google.maps.Map(document.getElementById('map'), {
+      center: {lat: -34.397, lng: 150.644},
+      zoom: 5
+    });
+
+    var drawingManager = new google.maps.drawing.DrawingManager({
+      drawingMode: google.maps.drawing.OverlayType.POLYGON,
+      drawingControl: true,
+      drawingControlOptions: {
+        position: google.maps.ControlPosition.TOP_CENTER,
+        drawingModes: [
+          google.maps.drawing.OverlayType.POLYGON,
+        ]
+      },
+      polygonOptions: {editable: true}
+    });
+
+    var selectedShape;
+
+    function deleteSelectedShape() {
+      if (selectedShape) { selectedShape.setMap(null); }
+      drawingManager.setOptions({
+        drawingControl: true
+      });
+    }
+
+    function jsonPolygon(shape) {
+      hash = {}
+      hash['type'] = 'Polygon'
+      hash['coordinates'] = []
+      hash['coordinates'][0] = []
+      shape.getPath()['b'].forEach(function(item){
+        hash['coordinates'][0].push([item.lng(), item.lat()])
+      })
+      return JSON.stringify(hash)
+    }
+
+    google.maps.event.addListener(drawingManager, 'overlaycomplete', function(e) {
+      drawingManager.setDrawingMode(null);
+      drawingManager.setOptions({
+        drawingControl: false
+      });
+      selectedShape = e.overlay;
+    });
+
+    google.maps.event.addDomListener(document.getElementById('clear-polygon'), 'click', deleteSelectedShape);
+
+    google.maps.event.addListenerOnce(map, 'idle', function(){
+      drawingManager.setMap(map);
+    });
+
+    $('form#new_location').submit(function(){
+      if (selectedShape) {
+        $('input#location_area').val(jsonPolygon(selectedShape));
+      }
+    })
+  });

@@ -1,0 +1,20 @@
+doctype html
+html
+  head
+    title BossTestProject
+    = stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true
+    = javascript_include_tag 'application', 'data-turbolinks-track' => true
+    = csrf_meta_tags
+    meta name="viewport" content="width=device-width, initial-scale=1"
+    script defer=true src="https://maps.googleapis.com/maps/api/js?key=#{Rails.application.secrets.google_maps_api_key}&libraries=drawing"
+  body
+    .navbar.navbar-default
+      .container-fluid
+        .navbar-header
+          .navbar-brand
+            p BossTestProject
+        ul.nav.navbar-nav
+          li = link_to 'Locations', locations_path
+          li = link_to 'New Location', new_location_path
+    = render 'layouts/messages'
+    = yield

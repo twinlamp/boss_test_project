@@ -1,0 +1,16 @@
+.container-fluid
+  .row
+    .col-sm-12
+      h3 Locations index
+    .col-sm-12
+      table.table
+        thead
+          tr
+            th Name
+            th Coordinates
+        tbody
+          - @locations.each do |loc|
+            tr
+              td = link_to loc.name, location_path(loc)
+              td = loc.coordinates
+

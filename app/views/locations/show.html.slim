@@ -1,0 +1,29 @@
+.container-fluid.full-height
+  .row.full-height
+    .col-sm-12
+      = @location.name
+    .col-sm-12.full-height
+      #map
+javascript:
+  $(document).one('turbolinks:load', function() {
+    var map = new google.maps.Map(document.getElementById('map'), {
+      center: #{raw @location.google_coordinates[0].to_json},
+      zoom: 5
+    });
+
+    var coordinates = #{raw @location.google_coordinates.to_json};
+
+    // window.polygon for testing purposes
+    window.polygon = new google.maps.Polygon({
+      paths: coordinates,
+      strokeColor: '#FF0000',
+      strokeOpacity: 0.8,
+      strokeWeight: 3,
+      fillColor: '#FF0000',
+      fillOpacity: 0.35
+    });
+
+    google.maps.event.addListenerOnce(map, 'idle', function(){
+      polygon.setMap(map);
+    });
+  });
